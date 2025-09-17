@@ -1,17 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Importar MP de forma dinámica para evitar errores de tipos
-let mercadopago: any;
-
-try {
-  mercadopago = require('mercadopago');
-  // Configurar MP con credenciales de test
-  mercadopago.configure({
-    access_token: process.env.MP_ACCESS_TOKEN || 'TEST-xxxxxxxxxxxxxxxxxxxxx'
-  });
-} catch (error) {
-  console.log('⚠️ MP no disponible, usando simulación');
-}
+// Simulación de MP (sin dependencia real)
+console.log('⚠️ MP no disponible, usando simulación');
 
 export async function POST(request: NextRequest) {
   try {

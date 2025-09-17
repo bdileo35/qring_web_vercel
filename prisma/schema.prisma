@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Direccion {
+  id        String   @id @default(cuid())
+  idUnico   String   @unique
+  nombre    String
+  calle     String?
+  numero    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  timbres   Timbre[]
+  estructura Estructura[]
+  ventas    Venta[]
+
+  @@map("direccion")
+}
+
+model Estructura {
+  id          String   @id @default(cuid())
+  nombre      String   // Nombre del piso (ej: "1", "2", "PB")
+  dptos       String   // JSON string de departamentos
+  orden       Int      // Orden de visualización
+  direccionId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  direccion Direccion @relation(fields: [direccionId], references: [id], onDelete: Cascade)
+
+  @@map("estructura")
+}
+
+model Timbre {
+  id                String   @id @default(cuid())
+  nombre            String   // Nombre del timbre (ej: "1A", "2B")
+  piso              String   // Piso del timbre
+  dpto              String   // Departamento del timbre
+  numero            String?  // Número de teléfono
+  metodo            String   @default("mensaje") // mensaje, llamada, video
+  estado            String   @default("activo") // activo, inactivo
+  esPropio          Boolean  @default(false)
+  estadoAsignacion  String   @default("libre") // libre, asignado, solicitado, configurado
+  direccionId       String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relaciones
+  direccion Direccion @relation(fields: [direccionId], references: [id], onDelete: Cascade)
+
+  @@map("timbres")
+}
+
+model Venta {
+  id                 String   @id @default(cuid())
+  idUnico            String
+  cantidadTimbres    Int
+  monto              Float
+  estado             String   @default("PENDIENTE") // PENDIENTE, PAGADA, CANCELADA
+  direccionId        String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relaciones
+  direccion Direccion? @relation(fields: [direccionId], references: [id])
+
+  @@map("venta")
+}
+
+model Configuracion {
+  id          String   @id @default(cuid())
+  clave       String   @unique
+  valor       String
+  descripcion String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("configuracion")
+}

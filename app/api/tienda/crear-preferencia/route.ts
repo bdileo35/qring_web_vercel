@@ -26,57 +26,21 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     });
 
-    // Si MP no está disponible, usar simulación
-    if (!mercadopago || !mercadopago.preferences) {
-      console.log('🔄 USANDO SIMULACIÓN MP');
-      const preferenceId = `pref_${Date.now()}`;
-      const initPoint = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
-
-      return NextResponse.json({
-        preferenceId,
-        initPoint,
-        simulation: true,
-        message: 'Simulación MP - Configura credenciales para producción',
-        idUnico,
-        montoTotal,
-        cantidadTimbres
-      });
-    }
-
-    // Crear preferencia real de MP
-    const preference = {
-      items: [
-        {
-          title: `QRing - ${cantidadTimbres} timbres`,
-          unit_price: precioPorTimbre,
-          quantity: cantidadTimbres,
-        }
-      ],
-      back_urls: {
-        success: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/tienda/exito?idUnico=${idUnico}&cantidad=${cantidadTimbres}&monto=${montoTotal}`,
-        failure: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/tienda/error`,
-        pending: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/tienda/pendiente`
-      },
-      auto_return: "approved",
-      external_reference: idUnico,
-      notification_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/tienda/webhook`
-    };
-
-    console.log('📋 PREFERENCIA CONFIGURADA:', preference);
-
-    const response = await mercadopago.preferences.create(preference);
-    
-    console.log('✅ PREFERENCIA CREADA:', response.body.id);
+    // Usar simulación MP (sin dependencia real)
+    console.log('🔄 USANDO SIMULACIÓN MP');
+    const preferenceId = `pref_${Date.now()}`;
+    const initPoint = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${preferenceId}`;
 
     return NextResponse.json({
-      preferenceId: response.body.id,
-      initPoint: response.body.init_point,
-      simulation: false,
-      message: 'Preferencia MP creada exitosamente',
+      preferenceId,
+      initPoint,
+      simulation: true,
+      message: 'Simulación MP - Configura credenciales para producción',
       idUnico,
       montoTotal,
       cantidadTimbres
     });
+
 
   } catch (error) {
     console.error('❌ ERROR CREANDO PREFERENCIA MP:', error);

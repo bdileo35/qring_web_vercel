@@ -1,7 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+// Simulación de Prisma para Vercel (sin base de datos real)
+const prisma = {
+  direccion: {
+    findUnique: async () => null,
+    create: async (data: any) => ({ id: 'sim_' + Date.now(), ...data.data }),
+    update: async (data: any) => ({ id: data.where.idUnico, ...data.data })
+  },
+  estructura: {
+    deleteMany: async () => ({ count: 0 }),
+    createMany: async () => ({ count: 0 })
+  },
+  timbre: {
+    deleteMany: async () => ({ count: 0 }),
+    createMany: async () => ({ count: 0 })
+  }
+};
 
 interface Direccion {
   calle: string;
